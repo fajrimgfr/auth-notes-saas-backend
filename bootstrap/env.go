@@ -7,6 +7,7 @@ import (
 
 type Env struct {
 	AppEnv                 string `mapstructure:"APP_ENV"`
+	Port				   string `mapstructure:"PORT"`
 	DBPort                 string `mapstructure:"DB_PORT"`
 	DBUser                 string `mapstructure:"DB_USER"`
 	DBPass                 string `mapstructure:"DB_PASS"`
@@ -29,4 +30,6 @@ func NewEnv() *Env {
 	if env.AppEnv == "development" {
 		log.Println("The App is running in development env")
 	}
+
+	return &env
 }
