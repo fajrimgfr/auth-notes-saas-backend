@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"time"
-	"github.com/gin-gonic/gin"
-	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
+
 	"github.com/fajrimgfr/auth-notes-saas-backend/api/route"
+	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -19,6 +20,6 @@ func main() {
 	router := gin.Default()
 
 	route.Setup(env, db, timeout, router)
-	
+
 	router.Run(fmt.Sprintf(":%s", env.Port))
 }

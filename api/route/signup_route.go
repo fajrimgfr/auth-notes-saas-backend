@@ -1,16 +1,20 @@
 package route
 
 import (
-	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
-	"database/sql"
 	"time"
-	"github.com/gin-gonic/gin"
 
-	"net/http"
+	"github.com/fajrimgfr/auth-notes-saas-backend/api/controller"
+	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
+	"github.com/fajrimgfr/auth-notes-saas-backend/domain"
+	"github.com/fajrimgfr/auth-notes-saas-backend/repository"
+	"github.com/fajrimgfr/auth-notes-saas-backend/usecase"
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 )
 
-func NewSignupRouter(env *bootstrap.Env, db *sql.DB, timeout time.Duration, group *gin.RouterGroup) {
-	group.GET("/signup", func(c *gin.Context){
-		c.IndentedJSON(http.StatusOK, "test")
-	}) 
+func NewSignupRouter(env *bootstrap.Env, db *sqlx.DB, timeout time.Duration, group *gin.RouterGroup) {
+	ur := repository.NewUserRepository(db, domain.UserCollection)
+	su := usecase.NewSignupUsecase(ur, timeout)
+	sc := controller.SignupController{SignupUsecase: su, Env: env}
+	group.POST("/signup", sc.Signup)
 }
