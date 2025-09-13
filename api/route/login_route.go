@@ -12,12 +12,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewSignupRouter(env *bootstrap.Env, db *sqlx.DB, timeout time.Duration, group *gin.RouterGroup) {
+func NewLoginRouter(env *bootstrap.Env, db *sqlx.DB, timeout time.Duration, group *gin.RouterGroup) {
 	ur := repository.NewUserRepository(db, domain.UserCollection)
-	su := usecase.NewSignupUsecase(ur, timeout)
-	sc := controller.SignupController{
-		SignupUsecase: su,
-		Env:           env,
+	lu := usecase.NewSignupUsecase(ur, timeout)
+	lc := controller.LoginController{
+		LoginUsecase: lu,
+		Env:          env,
 	}
-	group.POST("/signup", sc.Signup)
+	group.POST("/login", lc.Login)
 }

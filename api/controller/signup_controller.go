@@ -8,6 +8,7 @@ import (
 
 	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
 	"github.com/fajrimgfr/auth-notes-saas-backend/domain"
+	"github.com/fajrimgfr/auth-notes-saas-backend/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -30,8 +31,8 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		c.JSON(http.StatusConflict, domain.ErrorResponse{Message: "User already exists with the given email"})
 		return
 	}
-	hasedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 
+	hasedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return
@@ -53,5 +54,20 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, "user created")
+	accessToken, err := util.CreateAccessToken(&user, sc.Env.AccessTokenExpiryHour, sc.Env.AccessTokenSecret)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+	}
+
+	refreshToken, err := util.CreateRefreshToken(&user, sc.Env.RefreshTokenExpiryHour, sc.Env.RefreshTokenExpirySecret)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+	}
+
+	signupResponse := domain.SignupResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	c.JSON(http.StatusOK, signupResponse)
 }

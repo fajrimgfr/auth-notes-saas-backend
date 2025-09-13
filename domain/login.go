@@ -4,18 +4,16 @@ import (
 	"context"
 )
 
-type SignupRequest struct {
-	Name     string `form:"name" binding:"required"`
+type LoginRequest struct {
 	Email    string `form:"email" binding:"required,email"`
 	Password string `form:"password" binding:"required"`
 }
 
-type SignupResponse struct {
+type LoginResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
 }
 
-type SignupUsecase interface {
-	Create(c context.Context, user *User) error
+type LoginUsecase interface {
 	GetUserByEmail(c context.Context, email string) (User, error)
 }
