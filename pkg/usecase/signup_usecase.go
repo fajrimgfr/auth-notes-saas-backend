@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/fajrimgfr/auth-notes-saas-backend/domain"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/domain"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/util"
 )
 
 type signupUsecase struct {
@@ -28,4 +29,12 @@ func (su *signupUsecase) GetUserByEmail(c context.Context, email string) (domain
 	defer cancel()
 
 	return su.userRepository.GetByEmail(ctx, email)
+}
+
+func (su *signupUsecase) CreateAccessToken(user *domain.User, expiry int, secret string) (string, error) {
+	return util.CreateAccessToken(user, expiry, secret)
+}
+
+func (su *signupUsecase) CreateRefreshToken(user *domain.User, expiry int, secret string) (string, error) {
+	return util.CreateRefreshToken(user, expiry, secret)
 }

@@ -6,9 +6,8 @@ import (
 
 	"time"
 
-	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
-	"github.com/fajrimgfr/auth-notes-saas-backend/domain"
-	"github.com/fajrimgfr/auth-notes-saas-backend/util"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/bootstrap"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -41,12 +40,14 @@ func (sc *SignupController) Signup(c *gin.Context) {
 	request.Password = string(hasedPassword)
 
 	user := domain.User{
-		ID:        uuid.New().String(),
-		Email:     request.Email,
-		Password:  request.Password,
-		Name:      sql.NullString{String: request.Name, Valid: true},
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
+		ID:         uuid.New().String(),
+		Email:      request.Email,
+		Password:   sql.NullString{String: request.Password, Valid: true},
+		Name:       sql.NullString{String: request.Name, Valid: true},
+		Provider:   sql.NullString{String: "", Valid: false},
+		ProviderID: sql.NullString{String: "", Valid: false},
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
 	}
 
 	if err := sc.SignupUsecase.Create(c, &user); err != nil {
@@ -54,12 +55,12 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := util.CreateAccessToken(&user, sc.Env.AccessTokenExpiryHour, sc.Env.AccessTokenSecret)
+	accessToken, err := sc.SignupUsecase.CreateAccessToken(&user, sc.Env.AccessTokenExpiryHour, sc.Env.AccessTokenSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := util.CreateRefreshToken(&user, sc.Env.RefreshTokenExpiryHour, sc.Env.RefreshTokenExpirySecret)
+	refreshToken, err := sc.SignupUsecase.CreateRefreshToken(&user, sc.Env.RefreshTokenExpiryHour, sc.Env.RefreshTokenSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 	}

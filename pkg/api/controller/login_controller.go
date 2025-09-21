@@ -3,9 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
-	"github.com/fajrimgfr/auth-notes-saas-backend/domain"
-	"github.com/fajrimgfr/auth-notes-saas-backend/util"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/bootstrap"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/domain"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,22 +24,27 @@ func (lc *LoginController) Login(c *gin.Context) {
 
 	user, err := lc.LoginUsecase.GetUserByEmail(c, request.Email)
 	if err != nil {
-		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found with the given email"})
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: err.Error()})
+	if !user.Password.Valid {
+		c.JSON(http.StatusConflict, domain.ErrorResponse{Message: "Reset password or login with Google"})
 		return
 	}
 
-	accessToken, err := util.CreateAccessToken(&user, lc.Env.AccessTokenExpiryHour, lc.Env.AccessTokenSecret)
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password.String), []byte(request.Password)); user.Password.Valid && err != nil {
+		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "Invalid credentials"})
+		return
+	}
+
+	accessToken, err := lc.LoginUsecase.CreateAccessToken(&user, lc.Env.AccessTokenExpiryHour, lc.Env.AccessTokenSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	refreshToken, err := util.CreateRefreshToken(&user, lc.Env.RefreshTokenExpiryHour, lc.Env.RefreshTokenExpirySecret)
+	refreshToken, err := lc.LoginUsecase.CreateRefreshToken(&user, lc.Env.RefreshTokenExpiryHour, lc.Env.RefreshTokenSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return

@@ -3,11 +3,11 @@ package route
 import (
 	"time"
 
-	"github.com/fajrimgfr/auth-notes-saas-backend/api/controller"
-	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
-	"github.com/fajrimgfr/auth-notes-saas-backend/domain"
-	"github.com/fajrimgfr/auth-notes-saas-backend/repository"
-	"github.com/fajrimgfr/auth-notes-saas-backend/usecase"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/api/controller"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/bootstrap"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/domain"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/repository"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )

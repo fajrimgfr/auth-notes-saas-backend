@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fajrimgfr/auth-notes-saas-backend/api/route"
-	"github.com/fajrimgfr/auth-notes-saas-backend/bootstrap"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/api/route"
+	"github.com/fajrimgfr/auth-notes-saas-backend/pkg/bootstrap"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +14,8 @@ func main() {
 
 	db := bootstrap.NewPostgresDatabase(env)
 	defer db.Close()
+
+	bootstrap.NewGoogleOAuthConfig(env)
 
 	timeout := time.Duration(env.ContextTimeout) * time.Second
 
